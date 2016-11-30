@@ -19,6 +19,7 @@ function setUserInfo(request) {
     email: request.email,
     role: request.role,
   };
+}
 
 exports.login = function(req, res, next) {
   let userInfo = setUserInfo(req.user);
@@ -91,4 +92,4 @@ exports.roleAuthorization = function(role) {
       return next('Unauthorized');
     })
   }
-}
+};
