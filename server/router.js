@@ -8,3 +8,21 @@ const requireLogin = passport.authenticate('local', { session: false });
 
 const REQUIRE_DONOR = "Donor";
 const REQUIRE_CHARITY = "Charity";
+
+module.exports = function(app) {
+  const apiRoutes = express.Router();
+  const authRoutes = express.Router();
+
+  //=========================
+  // Auth Routes
+  //=========================
+
+  apiRoutes.use('/auth', authRoutes);
+
+  authRoutes.post('/register', AuthenticationController.register);
+
+  authRoutes.post('/login', requireLogin, AuthenticationController.login);
+
+// Set url for API group routes
+  app.use('/api', apiRoutes);
+};
