@@ -22,6 +22,23 @@ let UserSchema = new Schema({
     enum: ['Donor', 'Charity'],
     default: 'Donor'
   },
+  transactions: [{
+    name: String,
+    amount: Number,
+    date: String
+  }],
+  donations: [{
+    amount: Number,
+    date: Date
+  }],
+  plaidTokens: [{
+    token: String
+  }],
+  stripeCustomerID: [{
+    token: String
+  }],
+  spareChange: {type: Number},
+  lastRefresh: {type: Date},
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 },
@@ -49,9 +66,16 @@ UserSchema.pre('save', function(next) {
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
   bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
     if (err) { return cb(err); }
-
     cb(null, isMatch);
   });
 }
 
-module.exports = mongoose.model('User', UserSchema);  
+UserSchema.statics.insertPlaidToken = function(userID, accessToken, cb) {
+  User.update({'_id': userID}, { $push: { plaidTokens: accessToken }}, cb);
+}
+
+UserSchema.statics.insertStripeCustomerID = function(userID, customerID, cb) {
+  User.update({'_id': userID}, { $push: { stripeCustomerID: customerID }}, cb);
+}
+
+module.exports = mongoose.model('User', UserSchema);

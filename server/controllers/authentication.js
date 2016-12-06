@@ -18,6 +18,10 @@ function setUserInfo(request) {
     lastName: request.profile.lastName,
     email: request.email,
     role: request.role,
+    transactions: request.transactions,
+    donations: request.donations,
+    plaidTokens: request.plaidTokens,
+    spareChange: request.spareChange
   };
 }
 
