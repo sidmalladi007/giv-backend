@@ -13,6 +13,7 @@ var plaidClient =
 
 exports.doPlaidCallback = function(req, res, next) {
   var public_token = req.query.public_token;
+  var account_id = req.query.account_id;
   plaidClient.exchangeToken(public_token, function(err, tokenResponse) {
     if (err != null) {
       res.json({error: 'Unable to exchange public_token'});
