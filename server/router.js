@@ -28,7 +28,8 @@ module.exports = function(app) {
   authRoutes.post('/login', requireLogin, AuthenticationController.login);
 
   // Handle oauth callbacks
-  oauthRoutes.get('/plaidcallback', requireAuth, oauthController.doPlaidCallback);
+  oauthRoutes.get('/plaidauthcallback', requireAuth, oauthController.doPlaidAuthCallback);
+  oauthRoutes.get('/plaidconnectcallback', requireAuth, oauthController.doPlaidConnectCallback);
 
   // API functionality
   apiRoutes.get('/fetchtransactions', requireAuth, APIController.fetchTransactions);

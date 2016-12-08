@@ -23,22 +23,25 @@ let UserSchema = new Schema({
     default: 'Donor'
   },
   transactions: [{
-    name: String,
-    amount: Number,
-    date: String
+    name: {type: String},
+    amount: {type: Number},
+    change: {type: Number},
+    date: {type: String}
   }],
   donations: [{
-    amount: Number,
-    date: Date
+    amount: {type: Number},
+    date: {type: Date}
   }],
-  plaidTokens: [{
-    token: String
+  authTokens: [{
+    type: String
   }],
-  stripeCustomerID: [{
-    token: String
+  connectTokens: [{
+    type: String
   }],
+  stripeCustomerID: {type: String},
   spareChange: {type: Number},
   lastRefresh: {type: Date},
+  charities: [{name: String}],
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 },
@@ -70,12 +73,20 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
   });
 }
 
-UserSchema.statics.insertPlaidToken = function(userID, accessToken, cb) {
-  User.update({'_id': userID}, { $push: { plaidTokens: accessToken }}, cb);
+UserSchema.statics.plaidPullContext = function(userID, cb) {
+  User.findOne({'_id': userID}, 'plaid lastRefresh spareChange', cb);
+}
+
+UserSchema.statics.insertPlaidAuthToken = function(userID, accessToken, cb) {
+  User.update({'_id': userID}, { $push: { authTokens: accessToken }}, cb);
+}
+
+UserSchema.statics.insertPlaidConnectToken = function(userID, accessToken, cb) {
+  User.update({'_id': userID}, { $push: { connectTokens: accessToken }}, cb);
 }
 
 UserSchema.statics.insertStripeCustomerID = function(userID, customerID, cb) {
-  User.update({'_id': userID}, { $push: { stripeCustomerID: customerID }}, cb);
+  User.update({'_id': userID}, { $set: { stripeCustomerID: customerID }}, cb);
 }
 
 module.exports = mongoose.model('User', UserSchema);
