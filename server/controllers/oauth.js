@@ -5,8 +5,8 @@ var stripe = require("stripe")("sk_test_syV9DDTuDwIsdDGvxqVCA4K2");
 
 const User = require('../models/user');
 
-var PLAID_CLIENT_ID = "5833c41ba753b969cf26fc61" //envvar.string('PLAID_CLIENT_ID');
-var PLAID_SECRET = "a638a5459aeb83bb674ffb30492035" //envvar.string('PLAID_SECRET');
+var PLAID_CLIENT_ID = "584a46a139361950fd107cdd" //envvar.string('PLAID_CLIENT_ID');
+var PLAID_SECRET = "9dc438ec35793f5395f3011f006aed" //envvar.string('PLAID_SECRET');
 
 var plaidClient =
   new plaid.Client(PLAID_CLIENT_ID, PLAID_SECRET, plaid.environments.tartan);
@@ -24,7 +24,7 @@ exports.doPlaidAuthCallback = function(req, res, next) {
       // user from the Plaid API using your private client_id and secret.
       var plaidAccessToken = tokenResponse.access_token;
       var stripeBankToken = tokenResponse.stripe_bank_account_token;
-      User.static.insertPlaidAuthToken(req.user._id, plaidAccessToken, function(err, docsAffected) {
+      User.update({'_id': req.user._id}, { $push: { authTokens: plaidAccessToken } }, function(err, docsAffected) {
         if (err != null) {
           console.log(err);
         } else {
@@ -37,7 +37,7 @@ exports.doPlaidAuthCallback = function(req, res, next) {
               console.log(err);
             } else {
               console.log("Stripe customer created!");
-              User.static.insertStripeCustomerID(req.user._id, customer.id, function(err, docsAffected) {
+              User.update({'_id': req.user._id}, { $set: { stripeCustomerID: customer.id }}, function(err, docsAffected) {
                 if (err != null) {
                   console.log(err);
                 } else {
@@ -56,8 +56,8 @@ exports.doPlaidAuthCallback = function(req, res, next) {
 }
 
 exports.doPlaidConnectCallback = function(req, res, next) {
+  console.log("Hit!")
   var public_token = req.query.public_token;
-  var account_id = req.query.account_id;
   plaidClient.exchangeToken(public_token, function(err, tokenResponse) {
     if (err != null) {
       res.json({error: 'Unable to exchange public_token'});
@@ -67,7 +67,7 @@ exports.doPlaidConnectCallback = function(req, res, next) {
       // safely pull account and routing numbers or transaction data for the
       // user from the Plaid API using your private client_id and secret.
       var plaidAccessToken = tokenResponse.access_token;
-      User.static.insertPlaidConnectToken(req.user._id, plaidAccessToken, function(err, docsAffected) {
+      User.update({'_id': req.user._id}, { $push: { connectTokens: plaidAccessToken }}, function(err, docsAffected) {
         if (err != null) {
           console.log(err);
         } else {

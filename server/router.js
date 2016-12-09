@@ -28,8 +28,8 @@ module.exports = function(app) {
   authRoutes.post('/login', requireLogin, AuthenticationController.login);
 
   // Handle oauth callbacks
-  oauthRoutes.get('/plaidauthcallback', requireAuth, oauthController.doPlaidAuthCallback);
-  oauthRoutes.get('/plaidconnectcallback', requireAuth, oauthController.doPlaidConnectCallback);
+  oauthRoutes.post('/plaidauthcallback', requireAuth, oauthController.doPlaidAuthCallback);
+  oauthRoutes.post('/plaidconnectcallback', requireAuth, oauthController.doPlaidConnectCallback);
 
   // API functionality
   apiRoutes.get('/fetchtransactions', requireAuth, APIController.fetchTransactions);
@@ -37,6 +37,8 @@ module.exports = function(app) {
   apiRoutes.get('/fetchdonations', requireAuth, APIController.fetchDonations);
 
   apiRoutes.post('/makedonation', requireAuth, APIController.makeDonation);
+
+  apiRoutes.get('/listcharities', requireAuth, APIController.listAllCharities);
 
   apiRoutes.post('/connectcharity', requireAuth, APIController.connectCharity);
 
