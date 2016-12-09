@@ -29,24 +29,27 @@ exports.doPlaidAuthCallback = function(req, res, next) {
           console.log(err);
         } else {
           console.log("Plaid token inserted!");
-        }
-      });
-      stripe.customers.create({
-        description: `Stripe customer account for ${req.user.firstName} ${req.user.lastName}`,
-        source: stripeBankToken // obtained with Stripe.js
-      }, function(err, customer) {
-        if (err != null) {
-          console.log(err);
-        } else {
-          console.log("Stripe customer created!");
-          User.static.insertStripeCustomerID(req.user._id, customer.id, function(err, docsAffected) {
+          stripe.customers.create({
+            description: `Stripe customer account for ${req.user.firstName} ${req.user.lastName}`,
+            source: stripeBankToken // obtained with Stripe.js
+          }, function(err, customer) {
             if (err != null) {
               console.log(err);
             } else {
-              console.log("Stripe ID inserted!");
+              console.log("Stripe customer created!");
+              User.static.insertStripeCustomerID(req.user._id, customer.id, function(err, docsAffected) {
+                if (err != null) {
+                  console.log(err);
+                } else {
+                  console.log("Stripe ID inserted!");
+                }
+                res.status(200).json({
+                  result: "Success!"
+                });
+              })
             }
-          })
-        }
+        });
+      }
       });
     }
   })
@@ -69,6 +72,9 @@ exports.doPlaidConnectCallback = function(req, res, next) {
           console.log(err);
         } else {
           console.log("Plaid token inserted!");
+          res.status(200).json({
+            result: "Success!"
+          });
         }
       });
     }
