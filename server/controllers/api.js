@@ -43,12 +43,15 @@ exports.fetchTransactions = function(req, res, next) {
         var allTransactionsToAdd = [];
         response.transactions.forEach(function(transaction) {
           var name = transaction.name;
-          var amount = transaction.amount;
-          // var date = transaction.date;
-          var date = new Date();
-          var change = Math.floor(transaction.amount+1) - transaction.amount;
+          if (name.startsWith("DEBIT CARD PURCHASE")) {
+            name = name.split(' ').slice(4).join(' ');
+          }
+          var amount = transaction.amount
+          var displayedAmount = amount.toFixed(2);
+          var change = Math.floor(transaction.amount+1) - transaction.amount
+          var displayedChange = change.toFixed(2);
           newSpareChange += change;
-          var newTransaction = {name: name, amount: amount, change: change, date: date};
+          var newTransaction = {name: name, amount: displayedAmount, change: displayedChange};
           allTransactionsToAdd.push(newTransaction);
         });
         User.update({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, function(err, results) {
@@ -88,11 +91,15 @@ exports.fetchTransactions = function(req, res, next) {
         var allTransactionsToAdd = [];
         response.transactions.forEach(function(transaction) {
           var name = transaction.name;
-          var amount = transaction.amount;
-          var date = transaction.date;
-          var change = Math.floor(transaction.amount+1) - transaction.amount;
+          if (name.startsWith("DEBIT CARD PURCHASE")) {
+            name = name.split(' ').slice(4).join(' ');
+          }
+          var amount = transaction.amount
+          var displayedAmount = amount.toFixed(2);
+          var change = Math.floor(transaction.amount+1) - transaction.amount
+          var displayedChange = change.toFixed(2);
           newSpareChange += change;
-          var newTransaction = {name: name, amount: amount, change: change, date: date};
+          var newTransaction = {name: name, amount: displayedAmount, change: displayedChange};
           allTransactionsToAdd.push(newTransaction);
         });
         User.update({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, function(err, results) {
@@ -159,35 +166,53 @@ exports.fetchDonations = function(req, res, next) {
   })
 }
 
+exports.showChange = function(req, res, next) {
+  User.findOne({'_id': req.user._id}, 'spareChange', function(err, result) {
+    if (err) { console.log(err); }
+    res.status(200).json({
+      spareChange: result.spareChange
+    })
+  })
+}
+
 exports.makeDonation = function(req, res, next) {
   User.findOne({'_id': req.user._id}, 'spareChange', function(err, result) {
     var change = result.spareChange;
-    User.findOne({'_id': req.user._id}, 'stripeCustomerID', function(err, stripeInfo) {
+    User.update({'_id': req.user._id}, { $set: { spareChange: 0 }}, function(err, result) {
       if (err) {
         console.log(err);
       } else {
-        var customerID = stripeInfo.stripeCustomerID;
-        stripe.charges.create({
-          amount: change,
-          currency: "usd",
-          customer: customerID,
-          description: "Giv donation"
-        }, function(err, charge) {
-            if (err) {
-              console.log(err);
-            } else {
-              User.update({'_id': req.user._id}, { $set: { spareChange: 0 }}, function(err, result) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  res.status(200).json({
-                    result: "Success!"
-                  });
-                }
-              })
-            }
-          });
-        }
-      })
+        res.status(200).json({
+          result: "Success!"
+        });
+      }
+    })
+    // User.findOne({'_id': req.user._id}, 'stripeCustomerID', function(err, stripeInfo) {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     var customerID = stripeInfo.stripeCustomerID;
+    //     stripe.charges.create({
+    //       amount: change,
+    //       currency: "usd",
+    //       customer: customerID,
+    //       description: "Giv donation"
+    //     }, function(err, charge) {
+    //         if (err) {
+    //           console.log(err);
+    //         } else {
+    //           User.update({'_id': req.user._id}, { $set: { spareChange: 0 }}, function(err, result) {
+    //             if (err) {
+    //               console.log(err);
+    //             } else {
+    //               res.status(200).json({
+    //                 result: "Success!"
+    //               });
+    //             }
+    //           })
+    //         }
+    //       });
+    //     }
+    //   })
     })
 }

@@ -1,5 +1,6 @@
 let express = require('express');
 let app = express();
+app.disable('etag');
 let logger = require('morgan');
 let config = require('./config/main');
 let bodyParser = require('body-parser');

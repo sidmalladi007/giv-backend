@@ -24,9 +24,8 @@ let UserSchema = new Schema({
   },
   transactions: [{
     name: {type: String},
-    amount: {type: Number},
-    change: {type: Number},
-    date: {type: String}
+    amount: {type: String},
+    change: {type: String},
   }],
   donations: [{
     amount: {type: Number},
