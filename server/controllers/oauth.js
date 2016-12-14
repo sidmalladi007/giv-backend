@@ -1,12 +1,12 @@
 'use strict'
 
 var plaid = require('plaid');
-var stripe = require("stripe")("sk_test_syV9DDTuDwIsdDGvxqVCA4K2");
+var stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const User = require('../models/user');
 
-var PLAID_CLIENT_ID = "584a46a139361950fd107cdd" //envvar.string('PLAID_CLIENT_ID');
-var PLAID_SECRET = "9dc438ec35793f5395f3011f006aed" //envvar.string('PLAID_SECRET');
+var PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+var PLAID_SECRET = process.env.PLAID_SECRET;
 
 var plaidClient =
   new plaid.Client(PLAID_CLIENT_ID, PLAID_SECRET, plaid.environments.tartan);
@@ -17,7 +17,6 @@ exports.doPlaidAuthCallback = function(req, res, next) {
   plaidClient.exchangeToken(public_token, function(err, tokenResponse) {
     if (err != null) {
       res.json({error: 'Unable to exchange public_token'});
-      console.log("Token exchange didn't work");
     } else {
       // The exchange was successful - this access_token can now be used to
       // safely pull account and routing numbers or transaction data for the
@@ -28,7 +27,6 @@ exports.doPlaidAuthCallback = function(req, res, next) {
         if (err != null) {
           console.log(err);
         } else {
-          console.log("Plaid token inserted!");
           stripe.customers.create({
             description: `Stripe customer account for ${req.user.firstName} ${req.user.lastName}`,
             source: stripeBankToken // obtained with Stripe.js
@@ -36,12 +34,10 @@ exports.doPlaidAuthCallback = function(req, res, next) {
             if (err != null) {
               console.log(err);
             } else {
-              console.log("Stripe customer created!");
               User.update({'_id': req.user._id}, { $set: { stripeCustomerID: customer.id }}, function(err, docsAffected) {
                 if (err != null) {
                   console.log(err);
                 } else {
-                  console.log("Stripe ID inserted!");
                 }
                 res.status(200).json({
                   result: "Success!"
@@ -56,12 +52,10 @@ exports.doPlaidAuthCallback = function(req, res, next) {
 }
 
 exports.doPlaidConnectCallback = function(req, res, next) {
-  console.log("Hit!")
   var public_token = req.query.public_token;
   plaidClient.exchangeToken(public_token, function(err, tokenResponse) {
     if (err != null) {
       res.json({error: 'Unable to exchange public_token'});
-      console.log("Token exchange didn't work");
     } else {
       // The exchange was successful - this access_token can now be used to
       // safely pull account and routing numbers or transaction data for the
@@ -71,7 +65,6 @@ exports.doPlaidConnectCallback = function(req, res, next) {
         if (err != null) {
           console.log(err);
         } else {
-          console.log("Plaid token inserted!");
           res.status(200).json({
             result: "Success!"
           });

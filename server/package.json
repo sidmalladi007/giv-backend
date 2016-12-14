@@ -4,6 +4,7 @@
   "description": "The backend API for our iOS app.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sid Malladi",
@@ -18,6 +19,8 @@
     "morgan": "^1.7.0",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "plaid": "^1.1.0",
+    "stripe": "^4.14.0"
   }
 }

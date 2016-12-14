@@ -44,6 +44,8 @@ module.exports = function(app) {
 
   apiRoutes.get('/showuserinfo', requireAuth, APIController.showUserInfo);
 
+  apiRoutes.get('/showsparechange', requireAuth, APIController.showChange);
+
 
 // Set url for API group routes
   app.use('/api', apiRoutes);

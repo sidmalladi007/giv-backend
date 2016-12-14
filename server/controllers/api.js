@@ -1,12 +1,12 @@
 'use strict'
 
 var plaid = require('plaid');
-var stripe = require("stripe")("sk_test_syV9DDTuDwIsdDGvxqVCA4K2");
+var stripe = require("stripe")(process.env.STRIPE_KEY);
 
 
 const User = require('../models/user');
-var PLAID_CLIENT_ID = "584a46a139361950fd107cdd" //envvar.string('PLAID_CLIENT_ID');
-var PLAID_SECRET = "9dc438ec35793f5395f3011f006aed"
+var PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+var PLAID_SECRET = process.env.PLAID_SECRET;
 var plaidClient = new plaid.Client(PLAID_CLIENT_ID, PLAID_SECRET, plaid.environments.tartan);
 
 exports.showUserInfo = function(req, res, next) {
@@ -54,7 +54,7 @@ exports.fetchTransactions = function(req, res, next) {
           var newTransaction = {name: name, amount: displayedAmount, change: displayedChange};
           allTransactionsToAdd.push(newTransaction);
         });
-        User.update({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, function(err, results) {
+        User.findByIdAndUpdate({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, { new: true }, function(err, results) {
           if (err) {
             console.log(err);
           } else {
@@ -71,7 +71,7 @@ exports.fetchTransactions = function(req, res, next) {
               var displayedSpareChange;
               User.findOne({'_id': req.user._id}, 'spareChange', function(err, results) {
                 if (err) { console.log(err); }
-                displayedSpareChange = results.spareChange;
+                displayedSpareChange = (results.spareChange).toFixed(2);
                 User.findOne({'_id': req.user._id}, 'transactions', function(err, documents) {
                   var sortedDocs = sortTransactions(documents, 'date');
                   res.status(200).json({
@@ -102,7 +102,7 @@ exports.fetchTransactions = function(req, res, next) {
           var newTransaction = {name: name, amount: displayedAmount, change: displayedChange};
           allTransactionsToAdd.push(newTransaction);
         });
-        User.update({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, function(err, results) {
+        User.findByIdAndUpdate({'_id': req.user._id}, { $push: { transactions: { $each: allTransactionsToAdd } } }, { new: true }, function(err, results) {
           if (err) {
             console.log(err);
           } else {
@@ -119,7 +119,7 @@ exports.fetchTransactions = function(req, res, next) {
               var displayedSpareChange;
               User.findOne({'_id': req.user._id}, 'spareChange', function(err, results) {
                 if (err) { console.log(err); }
-                displayedSpareChange = results.spareChange;
+                displayedSpareChange = (results.spareChange).toFixed(2);
                 User.findOne({'_id': req.user._id}, 'transactions', function(err, documents) {
                   var sortedDocs = sortTransactions(documents, 'date');
                   res.status(200).json({
@@ -135,7 +135,7 @@ exports.fetchTransactions = function(req, res, next) {
     } else {
       User.findOne({'_id': req.user._id}, 'spareChange', function(err, results) {
         if (err) { console.log(err); }
-        var displayedSpareChange = results.spareChange;
+        var displayedSpareChange = (results.spareChange).toFixed(2);
         User.findOne({'_id': req.user._id}, 'transactions', function(err, documents) {
           var sortedDocs = sortTransactions(documents, 'date');
           res.status(200).json({
@@ -182,9 +182,19 @@ exports.makeDonation = function(req, res, next) {
       if (err) {
         console.log(err);
       } else {
-        res.status(200).json({
-          result: "Success!"
-        });
+        var currDate = new Date();
+        var donationDate = currDate.toISOString().slice(0,10);
+        var donationAmount = change;
+        var donation = {amount: donationAmount, date: donationDate};
+        User.findByIdAndUpdate({'_id': req.user._id}, { $push: { donations: donation } }, { new: true }, function(err, results) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.status(200).json({
+              result: "Donation complete!"
+            });
+          }
+        })
       }
     })
     // User.findOne({'_id': req.user._id}, 'stripeCustomerID', function(err, stripeInfo) {

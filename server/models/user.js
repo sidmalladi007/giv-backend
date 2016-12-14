@@ -29,7 +29,7 @@ let UserSchema = new Schema({
   }],
   donations: [{
     amount: {type: Number},
-    date: {type: Date}
+    date: {type: String}
   }],
   authTokens: [{
     type: String
@@ -76,59 +76,3 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 }
 
 module.exports = mongoose.model('User', UserSchema);
-
-// UserSchema.statics.plaidPullContext = function(userID, cb) {
-//   User.findOne({'_id': userID}, 'connectTokens lastRefresh', cb);
-// }
-
-// UserSchema.statics.addTransactions = function(userID, transactionsToAdd, cb) {
-//   User.update({'_id': userID}, { $push: { transactions: { $each: transactionsToAdd } } }, cb);
-// }
-
-// UserSchema.statics.retrieveSpareChange = function(userID, cb) {
-//   User.findOne({'_id': userID}, 'spareChange', cb)
-// }
-
-// UserSchema.statics.updateSpareChange = function(userID, newChange, cb) {
-//   User.findOne({'_id': userID}, 'spareChange', function(err, result) {
-//     if (err) { console.log(err); }
-//     var updatedSpareChangeValue = result.spareChange + newChange;
-//     User.update({'_id': userID}, { $set: { spareChange: updatedSpareChangeValue }}, cb);
-//   });
-// }
-
-// UserSchema.statics.retrieveSavedTransactions = function(userID) {
-//   User.findOne({'_id': userID}, 'transactions', cb);
-// }
-
-// UserSchema.statics.insertPlaidAuthToken = function(userID, accessToken, cb) {
-//   User.update({'_id': userID}, { $push: { authTokens: accessToken }}, cb);
-// }
-
-// UserSchema.statics.insertPlaidConnectToken = function(userID, accessToken, cb) {
-//   User.update({'_id': userID}, { $push: { connectTokens: accessToken }}, cb);
-// }
-
-// UserSchema.statics.insertStripeCustomerID = function(userID, customerID, cb) {
-//   User.update({'_id': userID}, { $set: { stripeCustomerID: customerID }}, cb);
-// }
-
-// UserSchema.statics.updateTimeStamp = function(userID, newDate, cb) {
-//   User.update({'_id': userID}, { $set: { lastRefresh: newDate }}, cb);
-// }
-
-// UserSchema.statics.fetchAllDonations = function(userID, cb) {
-//   User.findOne({'_id': userID}, 'donations', cb)
-// }
-
-// UserSchema.statics.getStripeID = function(userID, cb) {
-//   User.findOne({'_id': userID}, 'stripeCustomerID', cb)
-// }
-
-// UserSchema.statics.getSpareChange = function(userID, cb) {
-//   User.findOne({'_id': userID}, 'spareChange', cb)
-// }
-
-// UserSchema.statics.resetChange = function(userID, cd) {
-//   User.update({'_id': userID}, { $set: { spareChange: 0 }}, cb);
-// }
