@@ -1,5 +1,6 @@
 'use strict'
-
+var env = require('node-env-file');
+env(__dirname + '/../.env');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/user');
@@ -17,11 +18,6 @@ function setUserInfo(request) {
     firstName: request.profile.firstName,
     lastName: request.profile.lastName,
     email: request.email,
-    role: request.role,
-    transactions: request.transactions,
-    donations: request.donations,
-    plaidTokens: request.plaidTokens,
-    spareChange: request.spareChange
   };
 }
 

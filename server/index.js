@@ -5,6 +5,8 @@ let logger = require('morgan');
 let config = require('./config/main');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
+var env = require('node-env-file');
+env(__dirname + '/.env');
 
 let server = app.listen(config.port);
 console.log('Your server is running on port ' + config.port + '.');
